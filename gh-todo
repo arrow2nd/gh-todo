@@ -1,35 +1,117 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
-echo "Hello gh-todo!"
+if ! type -p fzf >/dev/null; then
+  echo "error: fzf not found on the system" >&2
+  exit 1
+fi
 
-# Snippets to help get started:
+version="0.0.1"
 
-# Determine if an executable is in the PATH
-# if ! type -p ruby >/dev/null; then
-#   echo "Ruby not found on the system" >&2
-#   exit 1
-# fi
+repo="$(gh config get -h github.com user)/todo"
+if [ -n "$GITHUB_TODO_REPO" ]; then
+    repo="$GITHUB_TODO_REPO"
+fi
 
-# Pass arguments through to another command
-# gh issue list "$@" -R cli/cli
+function usage {
+  cat << EOS >&2
+gh todo
+  GitHub CLI extension for managing Todo in GitHub Issues
 
-# Using the gh api command to retrieve and format information
-# QUERY='
-#   query($endCursor: String) {
-#     viewer {
-#       repositories(first: 100, after: $endCursor) {
-#         nodes {
-#           nameWithOwner
-#           stargazerCount
-#         }
-#       }
-#     }
-#   }
-# '
-# TEMPLATE='
-#   {{- range $repo := .data.viewer.repositories.nodes -}}
-#     {{- printf "name: %s - stargazers: %v\n" $repo.nameWithOwner $repo.stargazerCount -}}
-#   {{- end -}}
-# '
-# exec gh api graphql -f query="${QUERY}" --paginate --template="${TEMPLATE}"
+USAGE:
+  gh todo <action> [flag]
+
+ACTIONS:
+  add       Add new todo
+  edit      Edit todo
+  comment   Add a comment to todo
+  done      Mark todo as done
+  list      Display a list of todo
+  view      View todo details
+  browse    Open the todo in web browser
+
+FLAGS:
+  --help      Show this help
+  --version   Show version
+EOS
+}
+
+function add {
+  echo "add"
+}
+
+function edit {
+  echo "edit"
+}
+
+function comment {
+  echo "comment"
+}
+
+function _done {
+  echo "done"
+}
+
+function list {
+  echo "list"
+}
+
+function view {
+  echo "view"
+}
+
+function browse {
+  echo "browse"
+}
+
+function invalid {
+  usage
+  echo
+  echo "error: $@" >&2
+  exit 1
+}
+
+command="$1"
+
+case $command in
+  -v | --version)
+    echo "gh-todo v.$version"
+    exit 0
+    ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  add)
+    shift
+    add
+    ;;
+  edit)
+    edit
+    ;;
+  comment)
+    comment
+    ;;
+  done)
+    shift
+    _done
+    ;;
+  list)
+    list
+    ;;
+  view)
+    shift
+    view
+    ;;
+  browse)
+    shift
+    browse
+    ;;
+  *)
+    if [[ -n $command ]]; then
+      invalid "unknown command or option \"$command\" for \"todo\""
+    fi
+    usage
+    ;;
+esac
+
