@@ -19,49 +19,15 @@ gh todo
   GitHub CLI extension for managing Todo in GitHub Issues
 
 USAGE:
-  gh todo <action> [flag]
+  gh todo [action] [flag]
 
 ACTIONS:
-  add       Add new todo
-  edit      Edit todo
-  comment   Add a comment to todo
-  done      Mark todo as done
-  list      Display a list of todo
-  view      View todo details
-  browse    Open the todo in web browser
+  add         Add new todo
 
 FLAGS:
   --help      Show this help
   --version   Show version
 EOS
-}
-
-function add {
-  echo "add"
-}
-
-function edit {
-  echo "edit"
-}
-
-function comment {
-  echo "comment"
-}
-
-function _done {
-  echo "done"
-}
-
-function list {
-  echo "list"
-}
-
-function view {
-  echo "view"
-}
-
-function browse {
-  echo "browse"
 }
 
 function invalid {
@@ -71,9 +37,17 @@ function invalid {
   exit 1
 }
 
-command="$1"
+function select_issue {
+    gh issue list -R $repo --json number,title,updatedAt --template\
+      '{{range .}}{{tablerow (printf "#%v" .number | autocolor "green") .title (timeago .updatedAt)}}{{end}}'\
+      | fzf
+}
 
-case $command in
+function add {
+  echo "add"
+}
+
+case $1 in
   -v | --version)
     echo "gh-todo v.$version"
     exit 0
@@ -85,33 +59,50 @@ case $command in
   add)
     shift
     add
-    ;;
-  edit)
-    edit
-    ;;
-  comment)
-    comment
-    ;;
-  done)
-    shift
-    _done
-    ;;
-  list)
-    list
-    ;;
-  view)
-    shift
-    view
-    ;;
-  browse)
-    shift
-    browse
-    ;;
-  *)
-    if [[ -n $command ]]; then
-      invalid "unknown command or option \"$command\" for \"todo\""
-    fi
-    usage
+    exit 0
     ;;
 esac
 
+selected_issue=$(select_issue)
+if [[ -z select_issue ]]; then
+  exit 0
+fi
+
+echo $selected_issue
+echo
+
+issue_id=$(echo $selected_issue | cut -d ' ' -f 1)
+
+PS3='Please select action: '
+select action in "comment" "edit" "done" "view" "browse" "quit"
+do
+  echo
+  case $action in
+    comment)
+      gh issue comment -R $repo -e $issue_id
+      exit 0
+      ;;
+    edit)
+      gh issue edit -R $repo $issue_id
+      exit 0
+      ;;
+    done)
+      gh issue close -R $repo $issue_id
+      exit 0
+      ;;
+    view)
+      gh issue view -R $repo $issue_id
+      exit 0
+      ;;
+    browse)
+      gh issue view -R $repo --web $issue_id
+      exit 0
+      ;;
+    quit)
+      exit 0
+      ;;
+    *)
+      echo "error: not valid, input again"
+      ;;
+  esac
+done
