@@ -9,8 +9,8 @@ fi
 version="0.0.1"
 
 repo="$(gh config get -h github.com user)/todo"
-if [ -n "$GITHUB_TODO_REPO" ]; then
-    repo="$GITHUB_TODO_REPO"
+if [ -n "$GH_TODO_REPO" ]; then
+    repo="$GH_TODO_REPO"
 fi
 
 function usage {
