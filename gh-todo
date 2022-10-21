@@ -38,9 +38,19 @@ function invalid {
 }
 
 function select_issue {
-    gh issue list -R $repo --json number,title,updatedAt --template\
-      '{{range .}}{{tablerow (printf "#%v" .number | autocolor "green") .title (timeago .updatedAt)}}{{end}}'\
-      | fzf
+  local preview_cmd="gh issue view -R $repo --json labels,milestone,createdAt,body --template"
+  preview_cmd+=' "CREATED AT: {{.createdAt | timefmt \"2006-01-02 15:04 MST\"}}
+MILESTONE : {{and .milestone .milestone.title}}
+LABELS    : {{range .labels}}[ {{.name}} ] {{end}}
+
+----
+
+{{.body}}"'
+  preview_cmd+=' $(echo {} | cut -d " " -f 1)'
+
+  gh issue list -R $repo --json number,title,updatedAt --template\
+    '{{range .}}{{tablerow (printf "#%v" .number | autocolor "green") .title (timeago .updatedAt)}}{{end}}'\
+    | fzf --preview "$preview_cmd"
 }
 
 function add {
@@ -71,7 +81,8 @@ fi
 echo $selected_issue
 echo
 
-issue_id=$(echo $selected_issue | cut -d ' ' -f 1)
+# 後方最長一致で先頭のissue番号を取り出す
+issue_id=$(echo ${selected_issue%% *})
 
 PS3='Please select action: '
 select action in "comment" "edit" "done" "view" "browse" "quit"
