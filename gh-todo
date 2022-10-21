@@ -19,7 +19,7 @@ function version {
 
 function usage {
   version
-  cat << EOS >&2
+  cat << EOS
 GitHub CLI extension for managing Todo in GitHub Issues
 
 USAGE:
@@ -114,7 +114,7 @@ do
       exit 0
       ;;
     *)
-      echo "error: not valid, input again"
+      echo "error: not valid, input again" >&2
       ;;
   esac
 done
