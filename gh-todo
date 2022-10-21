@@ -13,10 +13,14 @@ if [ -n "$GH_TODO_REPO" ]; then
     repo="$GH_TODO_REPO"
 fi
 
+function version {
+  echo "gh-todo v.$version"
+}
+
 function usage {
+  version
   cat << EOS >&2
-gh todo
-  GitHub CLI extension for managing Todo in GitHub Issues
+GitHub CLI extension for managing Todo in GitHub Issues
 
 USAGE:
   gh todo [action] [flag]
@@ -59,7 +63,7 @@ function add {
 
 case $1 in
   -v | --version)
-    echo "gh-todo v.$version"
+    version
     exit 0
     ;;
   -h | --help)
