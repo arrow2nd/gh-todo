@@ -26,11 +26,15 @@ USAGE:
   gh todo [action] [flag]
 
 ACTIONS:
-  add <title>   Add new todo
+  add [title]   Add new todo
 
 FLAGS:
   --help        Show this help
   --version     Show version
+
+EXAMPLES:
+  gh todo
+  gh todo add stroke a cat
 EOS
 }
 
@@ -50,17 +54,6 @@ LABELS    : {{range .labels}}[ {{.name}} ] {{end}}
     | fzf --preview "$preview_cmd"
 }
 
-function add {
-  local title="$1"
-
-  if [[ -z $title ]]; then
-    echo "error: title required"
-    exit 1
-  fi
-
-  gh issue create -R $repo -t "$title"
-}
-
 case "$1" in
   -v | --version)
     version
@@ -71,14 +64,12 @@ case "$1" in
     exit 0
     ;;
   add)
-    if [[ -z "$2" ]]; then
-      echo -n "Title: "
-      read -r title
-    else
+    title=""
+    if [[ -n "$2" ]]; then
       shift
       title="$*"
     fi
-    add "$title"
+    gh issue create -R $repo -t "$title"
     exit 0
     ;;
 esac
