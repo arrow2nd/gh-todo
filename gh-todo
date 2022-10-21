@@ -103,7 +103,7 @@ do
       exit 0
       ;;
     view)
-      gh issue view -R $repo $issue_id
+      gh issue view -R $repo -c $issue_id
       exit 0
       ;;
     browse)
