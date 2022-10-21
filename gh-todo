@@ -26,22 +26,15 @@ USAGE:
   gh todo [action] [flag]
 
 ACTIONS:
-  add         Add new todo
+  add <title>   Add new todo
 
 FLAGS:
-  --help      Show this help
-  --version   Show version
+  --help        Show this help
+  --version     Show version
 EOS
 }
 
-function invalid {
-  usage
-  echo
-  echo "error: $@" >&2
-  exit 1
-}
-
-function select_issue {
+function select_issue_with_fzf {
   local preview_cmd="gh issue view -R $repo --json labels,milestone,createdAt,body --template"
   preview_cmd+=' "CREATED AT: {{.createdAt | timefmt \"2006-01-02 15:04 MST\"}}
 MILESTONE : {{and .milestone .milestone.title}}
@@ -58,10 +51,17 @@ LABELS    : {{range .labels}}[ {{.name}} ] {{end}}
 }
 
 function add {
-  echo "add"
+  local title="$1"
+
+  if [[ -z $title ]]; then
+    echo "error: title required"
+    exit 1
+  fi
+
+  gh issue create -R $repo -t "$title"
 }
 
-case $1 in
+case "$1" in
   -v | --version)
     version
     exit 0
@@ -71,14 +71,20 @@ case $1 in
     exit 0
     ;;
   add)
-    shift
-    add
+    if [[ -z "$2" ]]; then
+      echo -n "Title: "
+      read -r title
+    else
+      shift
+      title="$*"
+    fi
+    add "$title"
     exit 0
     ;;
 esac
 
-selected_issue=$(select_issue)
-if [[ -z select_issue ]]; then
+selected_issue=$(select_issue_with_fzf)
+if [[ -z selected_issue ]]; then
   exit 0
 fi
 
