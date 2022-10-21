@@ -1,8 +1,14 @@
 # gh-todo
 
-🗓 GitHub CLI extension for manipulating todo's managed by GitHub Issues using `fzf`.
+🗒 GitHub CLI extension for manipulating todo's managed by GitHub Issues using `fzf`.
 
 ![demo](https://user-images.githubusercontent.com/44780846/197148706-7f55ae2e-90c8-47fb-a6db-4ccdb342bc9e.gif)
+
+## Features
+
+- Refine todo using `fzf`
+- Preview of todo body
+- Create, edit, complete, and comment on todo
 
 ## Requirements
 
