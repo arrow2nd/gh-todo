@@ -50,7 +50,7 @@ LABELS    : {{range .labels}}[ {{.name}} ] {{end}}
   preview_cmd+=' $(echo {} | cut -d " " -f 1)'
 
   gh issue list -R $repo --json number,title,updatedAt --template\
-    '{{range .}}{{tablerow (printf "#%v" .number | autocolor "green") .title (timeago .updatedAt)}}{{end}}'\
+    '{{range .}}{{tablerow (printf "#%v" .number) .title (timeago .updatedAt)}}{{end}}'\
     | fzf --preview "$preview_cmd"
 }
 
