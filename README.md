@@ -2,6 +2,8 @@
 
 🗓 GitHub CLI extension for manipulating todo's managed by GitHub Issues using `fzf`.
 
+![demo](https://user-images.githubusercontent.com/44780846/197148706-7f55ae2e-90c8-47fb-a6db-4ccdb342bc9e.gif)
+
 ## Requirements
 
 - [junegunn/fzf](https://github.com/junegunn/fzf)
