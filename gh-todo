@@ -6,7 +6,7 @@ if ! type -p fzf >/dev/null; then
   exit 1
 fi
 
-version="0.0.1"
+version="0.1.0"
 
 repo="$(gh config get -h github.com user)/todo"
 if [ -n "$GH_TODO_REPO" ]; then
