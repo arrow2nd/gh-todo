@@ -54,24 +54,67 @@ LABELS    : {{range .labels}}[ {{.name}} ] {{end}}
     | fzf --preview "$preview_cmd"
 }
 
+function add {
+  local date_str=""
+
+  PS3='Please select a todo date: '
+  select d in "today" "tomorrow" "this month" "next month" "skip"
+  do
+    case $d in
+      today)
+        date_str=$(date +"%Y/%m/%d")
+        break;;
+      tomorrow)
+        date_str=$(date -v+1d +"%Y/%m/%d")
+        break;;
+      "this month")
+        date_str=$(date +"%Y/%m")
+        break;;
+      "next month")
+        date_str=$(date -v+1m +"%Y/%m")
+        break;;
+      "skip" | *)
+        echo "Skipped date selection."
+        break;;
+    esac
+  done
+
+  local title=""
+  if [[ -n "$1" ]]; then
+    title="$1"
+  fi
+
+  if [[ -z $title ]]; then
+    echo -n "Title: "
+    read -e -r title
+    if [[ -z $title ]]; then
+      echo "error: title is required" >&2
+      exit 1
+    fi
+  fi
+
+  if [[ -n $date_str ]]; then
+    title="[$date_str] $title"
+  fi
+
+  gh issue create -R $repo -t "$title"
+}
+
 case "$1" in
   -v | --version)
     version
-    exit 0
-    ;;
+    exit 0;;
   -h | --help)
     usage
-    exit 0
-    ;;
+    exit 0;;
   add)
-    title=""
+    args=""
     if [[ -n "$2" ]]; then
       shift
-      title="$*"
+      args="$*"
     fi
-    gh issue create -R $repo -t "$title"
-    exit 0
-    ;;
+    add "$args"
+    exit 0;;
 esac
 
 selected_issue=$(select_issue_with_fzf)
@@ -92,27 +135,21 @@ do
   case $action in
     comment)
       gh issue comment -R $repo -e $issue_id
-      exit 0
-      ;;
+      exit 0;;
     edit)
       gh issue edit -R $repo $issue_id
-      exit 0
-      ;;
+      exit 0;;
     done)
       gh issue close -R $repo $issue_id
-      exit 0
-      ;;
+      exit 0;;
     view)
       gh issue view -R $repo -c $issue_id
-      exit 0
-      ;;
+      exit 0;;
     browse)
       gh issue view -R $repo --web $issue_id
-      exit 0
-      ;;
+      exit 0;;
     quit)
-      exit 0
-      ;;
+      exit 0;;
     *)
       echo "error: not valid, input again" >&2
       ;;
