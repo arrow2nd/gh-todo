@@ -6,7 +6,7 @@ if ! type -p fzf >/dev/null; then
   exit 1
 fi
 
-version="0.1.1"
+version="0.1.2"
 
 repo="$(gh config get -h github.com user)/todo"
 if [ -n "$GH_TODO_REPO" ]; then
@@ -57,7 +57,7 @@ LABELS    : {{range .labels}}[ {{.name}} ] {{end}}
 function get_date {
   # BSD系のdateコマンド
   # NOTE: 自分の環境で該当するのがmacOSだけなので、Darwinのみチェック
-  if [[ $uname = "Darwin" ]]; then
+  if [[ `uname` = "Darwin" ]]; then
     case "$1" in
       tomorrow)
         date -v+1d +"%Y/%m/%d"
