@@ -6,7 +6,7 @@ if ! type -p fzf >/dev/null; then
   exit 1
 fi
 
-version="0.1.0"
+version="0.1.1"
 
 repo="$(gh config get -h github.com user)/todo"
 if [ -n "$GH_TODO_REPO" ]; then
@@ -54,33 +54,51 @@ LABELS    : {{range .labels}}[ {{.name}} ] {{end}}
     | fzf --preview "$preview_cmd"
 }
 
+function get_date {
+  # BSD系のdateコマンド
+  # NOTE: 自分の環境で該当するのがmacOSだけなので、Darwinのみチェック
+  if [[ $uname = "Darwin" ]]; then
+    case "$1" in
+      tomorrow)
+        date -v+1d +"%Y/%m/%d"
+        return;;
+      "next month")
+        date -v+1m +"%Y/%m"
+        return;;
+    esac
+  fi
+
+  case "$1" in
+    today)
+      date +"%Y/%m/%d"
+      ;;
+    "this month")
+      date +"%Y/%m"
+      ;;
+    tomorrow)
+      date -d "1 day" +"%Y/%m/%d"
+      ;;
+    "next month")
+      date -d "i month" +"%Y/%m"
+      ;;
+  esac
+}
+
 function add {
   local date_str=""
 
   PS3='Please select a todo date: '
   select d in "today" "tomorrow" "this month" "next month" "skip"
   do
-    case $d in
-      today)
-        date_str=$(date +"%Y/%m/%d")
-        break;;
-      tomorrow)
-        date_str=$(date -v+1d +"%Y/%m/%d")
-        break;;
-      "this month")
-        date_str=$(date +"%Y/%m")
-        break;;
-      "next month")
-        date_str=$(date -v+1m +"%Y/%m")
-        break;;
-      "skip" | *)
-        echo "Skipped date selection."
-        break;;
-    esac
+    date_str=$(get_date "$d")
+    if [[ -z $date_str ]]; then
+      echo "Skipped date selection."
+    fi
+    break
   done
 
   local title=""
-  if [[ -n "$1" ]]; then
+  if [[ -n $1 ]]; then
     title="$1"
   fi
 
